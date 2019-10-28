@@ -88,33 +88,38 @@ export function setCleaning(status: boolean, pluginName: string = "") {
 }
 
 function init(context: types.IExtensionContext) {
+  //Is this required?
+  context.requireExtension('gamebryo-plugin-management');
+
+  //Table attribute may be redundant once the context menu works?
+  context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
+
+  //Does not currently work, Tannin is aware. 
+  context.registerAction('gamebryo-plugin-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
+    instanceIds => {
+        return xEditQuickAutoClean(instanceIds, context.api);
+        }, 
+        instanceIds => {
+          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
+        });
+  
+  //Does not currently work, Tannin is aware. 
+  // context.registerAction('gamebryo-plugin-multirow-actions', 300, 'xEdit', {}, 'Clean with xEdit',
+  //   instanceIds => {
+  //       //Probably don't want this as a batch action, but will leave it here for now. 
+  //       console.log("xEdit multi button, yay!");
+  //       return true;
+  //       }, 
+  //       instanceIds => {
+  //         const activeGameId = selectors.activeGameId(context.api.store.getState());
+  //         return gameSupportData.find(g => g.game === activeGameId) ? true : false;
+  //       });
+  
   context.once(() => {
-    //Is this required?
-    context.requireExtension('gamebryo-plugin-management');
     //Woohoo! New Icon!
     util.installIconSet('xEditIcons', `${__dirname}/xediticon.svg`);
-    //Table attribute may be redundant once the context menu works?
-    context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
-    //Does not currently work, Tannin is aware. 
-    context.registerAction('gamebryo-plugin-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
-      instanceIds => {
-          return xEditQuickAutoClean(instanceIds, context.api);
-          }, 
-          instanceIds => {
-            const activeGameId = selectors.activeGameId(context.api.store.getState());
-            return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-          });
-    //Does not currently work, Tannin is aware. 
-    context.registerAction('gamebryo-plugin-multirow-actions', 300, 'xEdit', {}, 'Clean with xEdit',
-      instanceIds => {
-          //Probably don't want this as a batch action, but will leave it here for now. 
-          console.log("xEdit mulit button, yay!");
-          return true;
-          }, 
-          instanceIds => {
-            const activeGameId = selectors.activeGameId(context.api.store.getState());
-            return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-          });
+    
     //We want to react to xEdit closing once we launch it.   
     context.api.onStateChange(['session', 'base', 'toolsRunning'], async (previous, current) => {
       if (cleaningInProgress && (Object.keys(previous).length > 0) && (Object.keys(current).length === 0)) {
