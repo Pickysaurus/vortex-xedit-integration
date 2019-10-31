@@ -118,7 +118,7 @@ function init(context: types.IExtensionContext) {
   
   context.once(() => {
     //Woohoo! New Icon!
-    util.installIconSet('xEditIcons', `${__dirname}/xediticon.svg`);
+    util.installIconSet('xedit-icons', `${__dirname}/xediticon.svg`);
     
     //We want to react to xEdit closing once we launch it.   
     context.api.onStateChange(['session', 'base', 'toolsRunning'], async (previous, current) => {
