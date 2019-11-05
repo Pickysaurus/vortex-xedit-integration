@@ -95,9 +95,9 @@ function init(context: types.IExtensionContext) {
   context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
 
   //Does not currently work, Tannin is aware. 
-  context.registerAction('gamebryo-plugin-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
+  context.registerAction('gamebryo-plugins-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
-        return xEditQuickAutoClean(instanceIds, context.api);
+        return xEditQuickAutoClean(instanceIds[0], context.api);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
