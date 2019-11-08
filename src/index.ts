@@ -94,18 +94,18 @@ function init(context: types.IExtensionContext) {
   //Table attribute may be redundant once the context menu works?
   context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
 
-  //Does not currently work, Tannin is aware. 
+  //Add a QAC button. 
   context.registerAction('gamebryo-plugins-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
-        return xEditQuickAutoClean(instanceIds[0], context.api);
+        xEditQuickAutoClean(instanceIds[0], context.api);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
           return gameSupportData.find(g => g.game === activeGameId) ? true : false;
         });
   
-  //Does not currently work, Tannin is aware. 
-  // context.registerAction('gamebryo-plugin-multirow-actions', 300, 'xEdit', {}, 'Clean with xEdit',
+  //View in xEdit button.
+  // context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
   //   instanceIds => {
   //       //Probably don't want this as a batch action, but will leave it here for now. 
   //       console.log("xEdit multi button, yay!");
@@ -138,7 +138,7 @@ function init(context: types.IExtensionContext) {
   });
 }
 
-export function xEditQuickAutoClean(pluginName, api) {
+export function xEditQuickAutoClean(pluginName : string, api : types.IExtensionApi) {
   const store = api.store
   const activeGameId = selectors.activeGameId(store.getState());
 
@@ -148,11 +148,11 @@ export function xEditQuickAutoClean(pluginName, api) {
   const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
   const missingMaster = pluginData.warnings['missing-master'];
   //We can't clean the game ESMs.
-  if (excludedPlugins.includes(pluginName.toLowerCase())) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name} as it is the game master file.`);
+  if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
   //We can't clean plugins with a LOOT message.
-  if (doNotCleanMessage) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`);
+  if (doNotCleanMessage) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`, displayMS: 5000});
   //We can't clean plugins with missing masters. 
-  if (missingMaster) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name} as it has missing masters.`);
+  if (missingMaster) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
 
   const xEditData = gameSupportData.find(g => g.game === activeGameId);
   const gamePath = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
@@ -165,7 +165,6 @@ export function xEditQuickAutoClean(pluginName, api) {
 
   api.runExecutable(xEditTool.path, [xEditData.gameParam, "-quickautoclean", "-autoexit", "-autoload", pluginName],{
     cwd: gamePath,
-    env: "",
     suggestDeploy: false,
     shell: false,
     onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
