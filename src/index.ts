@@ -148,7 +148,9 @@ export function xEditQuickAutoClean(pluginName, api) {
   const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
   const missingMaster = pluginData.warnings['missing-master'];
   //We can't clean the game ESMs.
-  if (doNotCleanMessage) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name} as it is the game master file.`);
+  if (excludedPlugins.includes(pluginName.toLowerCase())) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name} as it is the game master file.`);
+  //We can't clean plugins with a LOOT message.
+  if (doNotCleanMessage) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`);
   //We can't clean plugins with missing masters. 
   if (missingMaster) return api.showErrorNotification(`Cannot clean this plugin`,`Vortex could not clean ${pluginData.name} as it has missing masters.`);
 
