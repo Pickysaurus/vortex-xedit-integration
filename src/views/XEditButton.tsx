@@ -4,7 +4,7 @@ import * as I18next from 'i18next';
 import * as React from 'react';
 import { Button, InputGroup } from 'react-bootstrap';
 import * as Redux from 'redux';
-import { doNotCleanMessages, xEditQuickAutoClean } from '../index';
+import { doNotCleanMessages } from '../index'; //xEditQuickAutoClean
 
 
 export interface IProps {
@@ -46,7 +46,7 @@ class XEditButton extends ComponentEx<IProps, {}> {
   private launchxEditQuickAutoClean = async () => {
     const { api, activeGameId, pluginName } = this.props; 
     log(`debug`,`Pressed xEdit button for ${pluginName} in ${activeGameId}.`);
-    return xEditQuickAutoClean(pluginName, api);
+    //return xEditQuickAutoClean(pluginName, api);
   }
 }
 

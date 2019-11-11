@@ -79,6 +79,11 @@ export const doNotCleanMessages = [
 '不干净。"脏"数据是故意的，这是mod需要的功能。'
 ];
 
+const xEditParams = {
+  "quickautoclean" : ["{gamePara}", "-quickautoclean", "-autoexit", "-autoload", "{pluginName}"],
+  "autoload" : ["{gamePara}", "-autoload", "{pluginName}"]
+};
+
 let cleaningInProgress = false;
 let pluginBeingCleaned = "";
 
@@ -91,13 +96,23 @@ function init(context: types.IExtensionContext) {
   //Is this required?
   context.requireExtension('gamebryo-plugin-management');
 
-  //Table attribute may be redundant once the context menu works?
-  context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
+  //Table attribute is be redundant once the context menu works?
+  //context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
+  
+  //Add a button to load your entire load order in xEdit. 
+  context.registerAction('gamebryo-plugins-icons', 300, 'xEdit', {}, 'Open xEdit',
+    () => {
+        runxEdit('', context.api, []);
+        }, 
+        () => {
+          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
+        });
 
   //Add a QAC button. 
-  context.registerAction('gamebryo-plugins-action-icons', 300, 'xEdit', {}, 'Clean with xEdit',
+  context.registerAction('gamebryo-plugins-action-icons', 500, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
-        xEditQuickAutoClean(instanceIds[0], context.api);
+        runxEdit(instanceIds[0], context.api, xEditParams['quickautoclean']);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -105,22 +120,21 @@ function init(context: types.IExtensionContext) {
         });
   
   //View in xEdit button.
-  // context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
-  //   instanceIds => {
-  //       //Probably don't want this as a batch action, but will leave it here for now. 
-  //       console.log("xEdit multi button, yay!");
-  //       return true;
-  //       }, 
-  //       instanceIds => {
-  //         const activeGameId = selectors.activeGameId(context.api.store.getState());
-  //         return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-  //       });
+  context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
+    instanceIds => {
+        //Probably don't want this as a batch action, but will leave it here for now. 
+        runxEdit(instanceIds[0], context.api, xEditParams['autoload']);
+        }, 
+        instanceIds => {
+          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
+        });
   
   context.once(() => {
     //Woohoo! New Icon!
     util.installIconSet('xedit-icons', `${__dirname}/xediticon.svg`);
     
-    //We want to react to xEdit closing once we launch it.   
+    //We want to react to xEdit closing once we launch it for cleaning.   
     context.api.onStateChange(['session', 'base', 'toolsRunning'], async (previous, current) => {
       if (cleaningInProgress && (Object.keys(previous).length > 0) && (Object.keys(current).length === 0)) {
         context.api.sendNotification({
@@ -138,7 +152,7 @@ function init(context: types.IExtensionContext) {
   });
 }
 
-export function xEditQuickAutoClean(pluginName : string, api : types.IExtensionApi) {
+export function runxEdit(pluginName : string, api : types.IExtensionApi, params : string[]) {
   const store = api.store
   const activeGameId = selectors.activeGameId(store.getState());
 
@@ -155,6 +169,10 @@ export function xEditQuickAutoClean(pluginName : string, api : types.IExtensionA
   if (missingMaster) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
 
   const xEditData = gameSupportData.find(g => g.game === activeGameId);
+  //Replace game and plugin params in the arguements array.
+  params.indexOf('{gamePara}') !== -1 && xEditData.gameParam ? params[params.indexOf('{gamePara}')] = xEditData.gameParam : null;
+  params.indexOf('{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('{pluginName}')] = pluginName : null;
+
   const gamePath = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
    
   const tools = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], undefined);
@@ -163,14 +181,14 @@ export function xEditQuickAutoClean(pluginName : string, api : types.IExtensionA
 
   if (!xEditTool || !xEditTool.path) return api.showErrorNotification(`xEdit not found`,`Vortex could not find ${xEditData.exeName}. Please check the tool in your starter dashlet is pointing to the right place.`);
 
-  api.runExecutable(xEditTool.path, [xEditData.gameParam, "-quickautoclean", "-autoexit", "-autoload", pluginName],{
+  api.runExecutable(xEditTool.path, params,{
     cwd: gamePath,
     suggestDeploy: false,
     shell: false,
     onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
   }).then(
     //Set the flag so we know we're cleaning with this tool.
-    setCleaning(true, pluginName)
+    params.includes('-quickautoclean') ? setCleaning(true, pluginName) : null
   )
   .catch(err => {
     if (err.errno === 'ENOENT') {
