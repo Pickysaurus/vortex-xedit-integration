@@ -1,13 +1,13 @@
 {
   "name": "xedit-integration",
   "version": "1.0.4",
-  "description": "Adds the ability to clean your plugins with xEdit from inside Vortex.",
+  "description": "Adds the ability to clean your plugins with xEdit from inside Vortex. Requires Vortex 1.1.0+ and xEdit 4.0.3+ for all functions.",
   "main": "./out/index.js",
   "repository": "",
   "scripts": {
     "webpack": "node ./node_modules/webpack/bin/webpack --config webpack.config.js --display-error-details --progress --profile --color",
-    "bundle7z": "7z a -t7z xedit-integration.7z .\\dist\\index.js .\\dist\\info.json",
-    "build": "npm run webpack && extractInfo"
+    "bundle7z": "7z a -t7z xedit-integration.7z .\\dist\\index.js .\\dist\\info.json .\\dist\\xediticon.svg",
+    "build": "npm run webpack"
   },
   "author": "Pickysaurus",
   "license": "GPL-3.0",

@@ -1,5 +1,4 @@
 import { actions, log, selectors, types, util } from 'vortex-api';
-import { genxEditAttribute } from './attributes';
 
 
 export const gameSupportData = [
@@ -94,11 +93,11 @@ export function setCleaning(status: boolean, pluginName: string = "") {
 }
 
 function init(context: types.IExtensionContext) {
-  //Is this required?
+  //Require Vortex 1.1.0+
+  context.requireVersion('^1.1.0');
+  
+  //Requires the plugin manager
   context.requireExtension('gamebryo-plugin-management');
-
-  //Table attribute is be redundant once the context menu works?
-  //context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
   
   //Add a button to load your entire load order in xEdit. 
   context.registerAction('gamebryo-plugin-icons', 300, 'xEdit', {}, 'Open xEdit',
@@ -170,7 +169,7 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
   }
   
   //We can't clean the game ESMs.
-  if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
+  if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1 && params.includes('-quickautoclean')) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
 
   const xEditData = gameSupportData.find(g => g.game === activeGameId);
   //Replace game and plugin params in the arguements array.
