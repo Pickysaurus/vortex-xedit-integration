@@ -21,7 +21,7 @@ export const gameSupportData = [
   {
     game: "fallout4",
     exeName: "FO4Edit",
-    gameParam: "-fo4vr"
+    gameParam: "-fo4"
   },
   {
     game: "oblivion",
@@ -81,7 +81,8 @@ export const doNotCleanMessages = [
 
 const xEditParams = {
   "quickautoclean" : ["{gamePara}", "-quickautoclean", "-autoexit", "-autoload", "{pluginName}"],
-  "autoload" : ["{gamePara}", "-autoload", "{pluginName}"]
+  "autoloadplugin" : ["{gamePara}", "-autoload", "{pluginName}"],
+  "autoloadall" : ["{gamePara}", "-autoload"]
 };
 
 let cleaningInProgress = false;
@@ -100,9 +101,9 @@ function init(context: types.IExtensionContext) {
   //context.registerTableAttribute('gamebryo-plugins', genxEditAttribute(context.api));
   
   //Add a button to load your entire load order in xEdit. 
-  context.registerAction('gamebryo-plugins-icons', 300, 'xEdit', {}, 'Open xEdit',
+  context.registerAction('gamebryo-plugin-icons', 300, 'xEdit', {}, 'Open xEdit',
     () => {
-        runxEdit('', context.api, []);
+        runxEdit('', context.api, xEditParams['autoloadall']);
         }, 
         () => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -123,7 +124,7 @@ function init(context: types.IExtensionContext) {
   context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
     instanceIds => {
         //Probably don't want this as a batch action, but will leave it here for now. 
-        runxEdit(instanceIds[0], context.api, xEditParams['autoload']);
+        runxEdit(instanceIds[0], context.api, xEditParams['autoloadplugin']);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -158,15 +159,18 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
 
   //Get Data about our plugin
   const pluginData = util.getSafe(store.getState(), ['session', 'plugins', 'pluginInfo', pluginName.toLowerCase()], undefined);
-  const lootMessages = pluginData.messages;
-  const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
-  const missingMaster = pluginData.warnings['missing-master'];
+  if (pluginData) {
+    const lootMessages = pluginData.messages;
+    const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
+    const missingMaster = pluginData.warnings['missing-master'];
+    //We can't clean plugins with a LOOT message.
+    if (doNotCleanMessage) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`, displayMS: 5000});
+    //We can't clean plugins with missing masters. 
+    if (missingMaster) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
+  }
+  
   //We can't clean the game ESMs.
   if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
-  //We can't clean plugins with a LOOT message.
-  if (doNotCleanMessage) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`, displayMS: 5000});
-  //We can't clean plugins with missing masters. 
-  if (missingMaster) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
 
   const xEditData = gameSupportData.find(g => g.game === activeGameId);
   //Replace game and plugin params in the arguements array.
