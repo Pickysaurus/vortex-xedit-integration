@@ -102,7 +102,7 @@ function init(context: types.IExtensionContext) {
   //Add a button to load your entire load order in xEdit. 
   context.registerAction('gamebryo-plugin-icons', 300, 'xEdit', {}, 'Open xEdit',
     () => {
-        runxEdit('', context.api, xEditParams['autoloadall']);
+        runxEdit('', context.api, [...xEditParams['autoloadall']]);
         }, 
         () => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -112,7 +112,7 @@ function init(context: types.IExtensionContext) {
   //Add a QAC button. 
   context.registerAction('gamebryo-plugins-action-icons', 500, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
-        runxEdit(instanceIds[0], context.api, xEditParams['quickautoclean']);
+        runxEdit(instanceIds[0], context.api, [...xEditParams['quickautoclean']]);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -123,7 +123,7 @@ function init(context: types.IExtensionContext) {
   context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
     instanceIds => {
         //Probably don't want this as a batch action, but will leave it here for now. 
-        runxEdit(instanceIds[0], context.api, xEditParams['autoloadplugin']);
+        runxEdit(instanceIds[0], context.api, [...xEditParams['autoloadplugin']]);
         }, 
         instanceIds => {
           const activeGameId = selectors.activeGameId(context.api.store.getState());
@@ -191,7 +191,7 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
     onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
   }).then(
     //Set the flag so we know we're cleaning with this tool.
-    params.includes('-quickautoclean') ? setCleaning(true, pluginName) : null
+    params.includes('-quickautoclean') ? setCleaning(true, pluginData.name || pluginName) : null
   )
   .catch(err => {
     if (err.errno === 'ENOENT') {
