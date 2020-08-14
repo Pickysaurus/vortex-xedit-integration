@@ -179,8 +179,8 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
   const gamePath = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
    
   const tools = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], undefined);
-  const xEditKey = Object.keys(tools).find(t => t === xEditData.exeName);
-  const xEditTool : types.IDiscoveredTool = tools[xEditKey];
+  const xEditKey = tools ? Object.keys(tools).find(t => t === xEditData.exeName) : undefined;
+  const xEditTool : types.IDiscoveredTool = xEditKey ? tools[xEditKey] : undefined;
 
   if (!xEditTool || !xEditTool.path) return api.showErrorNotification(`xEdit not found`,`Vortex could not find ${xEditData.exeName}. Please check the tool in your starter dashlet is pointing to the right place.`);
 

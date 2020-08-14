@@ -1,6 +1,6 @@
 {
   "name": "xedit-integration",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Adds the ability to clean your plugins with xEdit from inside Vortex. Requires Vortex 1.1.0+ and xEdit 4.0.3+ for all functions.",
   "main": "./out/index.js",
   "repository": "",
@@ -30,7 +30,7 @@
     "react-bootstrap": "^0.32.4",
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.2",
-    "vortex-api": "github:Nexus-Mods/vortex-api",
+    "vortex-api": "Nexus-Mods/vortex-api",
     "webpack": "^4.35.0",
     "webpack-cli": "^3.3.4"
   }
