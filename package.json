@@ -1,6 +1,6 @@
 {
   "name": "xedit-integration",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Adds the ability to clean your plugins with xEdit from inside Vortex. Requires Vortex 1.1.0+ and xEdit 4.0.3+ for all functions.",
   "main": "./out/index.js",
   "repository": "",

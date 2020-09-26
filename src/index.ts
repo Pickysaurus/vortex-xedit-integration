@@ -159,7 +159,7 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
   //Get Data about our plugin
   const pluginData = util.getSafe(store.getState(), ['session', 'plugins', 'pluginInfo', pluginName.toLowerCase()], undefined);
   if (pluginData) {
-    const lootMessages = pluginData.messages;
+    const lootMessages = pluginData.messages || [];
     const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
     const missingMaster = pluginData.warnings['missing-master'];
     //We can't clean plugins with a LOOT message.
