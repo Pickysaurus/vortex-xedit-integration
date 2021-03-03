@@ -80,7 +80,7 @@ export const doNotCleanMessages = [
 
 const xEditParams = {
   "quickautoclean" : ["{gamePara}", "-quickautoclean", "-autoexit", "-autoload", "{pluginName}"],
-  "autoloadplugin" : ["{gamePara}", "-autoload", "{pluginName}"],
+  "autoloadplugin" : ["{gamePara}", "-quickload", "{pluginName}"],
   "autoloadall" : ["{gamePara}", "-autoload"]
 };
 
