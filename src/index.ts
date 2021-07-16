@@ -175,7 +175,7 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
   //Replace game and plugin params in the arguements array.
   params.indexOf('{gamePara}') !== -1 && xEditData.gameParam ? params[params.indexOf('{gamePara}')] = xEditData.gameParam : null;
   params.indexOf('{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('{pluginName}')] = pluginName : null;
-  params.indexOf('-quickedit: {pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('{pluginName-quickedit: {pluginName}')] = `-quickedit: ${pluginName}` : null;
+  params.indexOf('-quickedit:{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('-quickedit:{pluginName}')] = `-quickedit:${pluginName}` : null;
 
   const gamePath = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
    
