@@ -104,20 +104,15 @@ function init(context: types.IExtensionContext) {
     () => {
         runxEdit('', context.api, [...xEditParams['autoloadall']]);
         }, 
-        () => {
-          const activeGameId = selectors.activeGameId(context.api.getState());
-          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-        });
+    () => isSupportedGame(context));
 
   //Add a QAC button. 
   context.registerAction('gamebryo-plugins-action-icons', 500, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
         runxEdit(instanceIds[0], context.api, [...xEditParams['quickautoclean']]);
         }, 
-        instanceIds => {
-          const activeGameId = selectors.activeGameId(context.api.getState());
-          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-        });
+    () => isSupportedGame(context)
+  );
   
   //View in xEdit button.
   context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
@@ -125,10 +120,8 @@ function init(context: types.IExtensionContext) {
         //Probably don't want this as a batch action, but will leave it here for now. 
         runxEdit(instanceIds[0], context.api, [...xEditParams['autoloadplugin']]);
         }, 
-        instanceIds => {
-          const activeGameId = selectors.activeGameId(context.api.getState());
-          return gameSupportData.find(g => g.game === activeGameId) ? true : false;
-        });
+    () => isSupportedGame(context)
+  );
   
   context.once(() => {
     //Woohoo! New Icon!
@@ -152,8 +145,12 @@ function init(context: types.IExtensionContext) {
   });
 }
 
-export function runxEdit(pluginName : string, api : types.IExtensionApi, params : string[]) {
-  const store = api.store
+function isSupportedGame(context: types.IExtensionContext): boolean {
+  const activeGameId = selectors.activeGameId(context.api.getState());
+  return gameSupportData.find(g => g.game === activeGameId) ? true : false;
+}
+
+export async function runxEdit(pluginName : string, api : types.IExtensionApi, params : string[]) {
   const state = api.getState();
   const activeGameId = selectors.activeGameId(state);
 
@@ -186,20 +183,21 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
 
   if (!xEditTool || !xEditTool.path) return api.showErrorNotification(`xEdit not found`,`Vortex could not find ${xEditData.exeName}. Please check the tool in your starter dashlet is pointing to the right place.`);
 
-  api.runExecutable(xEditTool.path, params,{
-    cwd: gamePath,
-    suggestDeploy: false,
-    shell: false,
-    onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
-  }).then(
-    //Set the flag so we know we're cleaning with this tool.
-    params.includes('-quickautoclean') ? setCleaning(true, pluginData.name || pluginName) : null
-  )
-  .catch(err => {
-    if (err.errno === 'ENOENT') {
+  try {
+    await api.runExecutable(xEditTool.path, params,{
+      cwd: gamePath,
+      suggestDeploy: false,
+      shell: false,
+      onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
+    });
+    if (params.includes('-quickautoclean')) setCleaning(true, pluginData?.name ?? pluginName);
+
+  }
+  catch(err) {
+    if (err.code === 'ENOENT') {
       api.showErrorNotification(`xEdit not found`,`Failed to run tool. Vortex could not find xEdit at ${xEditTool.path}. Please check the tool in your starter dashlet is pointing to the right place.`);
-    } else console.log(err);
-  });
+    } else log('error', 'Error starting xEdit',err);
+  }
 }
 
 
