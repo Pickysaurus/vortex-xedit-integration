@@ -105,7 +105,7 @@ function init(context: types.IExtensionContext) {
         runxEdit('', context.api, [...xEditParams['autoloadall']]);
         }, 
         () => {
-          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          const activeGameId = selectors.activeGameId(context.api.getState());
           return gameSupportData.find(g => g.game === activeGameId) ? true : false;
         });
 
@@ -115,7 +115,7 @@ function init(context: types.IExtensionContext) {
         runxEdit(instanceIds[0], context.api, [...xEditParams['quickautoclean']]);
         }, 
         instanceIds => {
-          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          const activeGameId = selectors.activeGameId(context.api.getState());
           return gameSupportData.find(g => g.game === activeGameId) ? true : false;
         });
   
@@ -126,7 +126,7 @@ function init(context: types.IExtensionContext) {
         runxEdit(instanceIds[0], context.api, [...xEditParams['autoloadplugin']]);
         }, 
         instanceIds => {
-          const activeGameId = selectors.activeGameId(context.api.store.getState());
+          const activeGameId = selectors.activeGameId(context.api.getState());
           return gameSupportData.find(g => g.game === activeGameId) ? true : false;
         });
   
@@ -154,10 +154,11 @@ function init(context: types.IExtensionContext) {
 
 export function runxEdit(pluginName : string, api : types.IExtensionApi, params : string[]) {
   const store = api.store
-  const activeGameId = selectors.activeGameId(store.getState());
+  const state = api.getState();
+  const activeGameId = selectors.activeGameId(state);
 
   //Get Data about our plugin
-  const pluginData = util.getSafe(store.getState(), ['session', 'plugins', 'pluginInfo', pluginName.toLowerCase()], undefined);
+  const pluginData = util.getSafe(state, ['session', 'plugins', 'pluginInfo', pluginName.toLowerCase()], undefined);
   if (pluginData) {
     const lootMessages = pluginData.messages || [];
     const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
@@ -177,9 +178,9 @@ export function runxEdit(pluginName : string, api : types.IExtensionApi, params 
   params.indexOf('{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('{pluginName}')] = pluginName : null;
   params.indexOf('-quickedit:{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('-quickedit:{pluginName}')] = `-quickedit:${pluginName}` : null;
 
-  const gamePath = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
+  const gamePath = util.getSafe(state, ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
    
-  const tools = util.getSafe(store.getState(), ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], undefined);
+  const tools = util.getSafe(state, ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], undefined);
   const xEditKey = tools ? Object.keys(tools).find(t => t === xEditData.exeName) : undefined;
   const xEditTool : types.IDiscoveredTool = xEditKey ? tools[xEditKey] : undefined;
 
