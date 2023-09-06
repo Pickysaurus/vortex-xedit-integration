@@ -686,16 +686,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:23.2.0":
-  version: 23.2.0
-  resolution: "electron@npm:23.2.0"
+"electron@npm:22.3.21":
+  version: 22.3.21
+  resolution: "electron@npm:22.3.21"
   dependencies:
     "@electron/get": ^2.0.0
     "@types/node": ^16.11.26
     extract-zip: ^2.0.1
   bin:
     electron: cli.js
-  checksum: 175326a42946dd5fa55d4a4e550328109abcf868bda6d34e9f49caaa4a672ddf65624e76260cf767ba37e0278f96cf1b21b7204c8528476f3f516fcc4b4e097f
+  checksum: b2edf0086379e6f5705027ea80e09355538fc9081b78cc0419d22288dce4ab2d99223435a9afc5943b925fe504c573e8b96ff938da65b26f8d226be605728369
   languageName: node
   linkType: hard
 
@@ -1434,7 +1434,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -1716,7 +1716,7 @@ __metadata:
 
 "typescript@patch:typescript@^3.5.2#~builtin<compat/typescript>":
   version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#~builtin<compat/typescript>::version=3.9.7&hash=701156"
+  resolution: "typescript@patch:typescript@npm%3A3.9.7#~builtin<compat/typescript>::version=3.9.7&hash=3bd3d3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -1891,7 +1891,7 @@ __metadata:
     7z-bin: Nexus-Mods/7z-bin
     "@types/node": ^12.0.10
     bluebird: ^3.5.5
-    electron: 23.2.0
+    electron: 22.3.21
     i18next: ^17.0.4
     ts-loader: ^9.4.2
     typescript: ^3.5.2
