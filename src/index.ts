@@ -1,5 +1,8 @@
 import { actions, log, selectors, types, util } from 'vortex-api';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const gameSupportData = [
   {
@@ -109,7 +112,7 @@ function init(context: types.IExtensionContext) {
   //Add a QAC button. 
   context.registerAction('gamebryo-plugins-action-icons', 500, 'xEdit', {}, 'Clean with xEdit',
     instanceIds => {
-        runxEdit(instanceIds[0], context.api, [...xEditParams['quickautoclean']]);
+        runxEdit(instanceIds?.[0], context.api, [...xEditParams['quickautoclean']]);
         }, 
     () => isSupportedGame(context)
   );
@@ -118,7 +121,7 @@ function init(context: types.IExtensionContext) {
   context.registerAction('gamebryo-plugins-action-icons', 100, 'xEdit', {}, 'Open in xEdit',
     instanceIds => {
         //Probably don't want this as a batch action, but will leave it here for now. 
-        runxEdit(instanceIds[0], context.api, [...xEditParams['autoloadplugin']]);
+        runxEdit(instanceIds?.[0], context.api, [...xEditParams['autoloadplugin']]);
         }, 
     () => isSupportedGame(context)
   );
@@ -128,9 +131,9 @@ function init(context: types.IExtensionContext) {
     util.installIconSet('xedit-icons', `${__dirname}/xediticon.svg`);
     
     //We want to react to xEdit closing once we launch it for cleaning.   
-    context.api.onStateChange(['session', 'base', 'toolsRunning'], async (previous, current) => {
+    context.api.onStateChange?.(['session', 'base', 'toolsRunning'], async (previous, current) => {
       if (cleaningInProgress && (Object.keys(previous).length > 0) && (Object.keys(current).length === 0)) {
-        context.api.sendNotification({
+        context.api.sendNotification?.({
           type: "success",
           title: "Plugin Cleaning Completed",
           message: `${pluginBeingCleaned} was cleaned with xEdit.`, 
@@ -150,7 +153,8 @@ function isSupportedGame(context: types.IExtensionContext): boolean {
   return gameSupportData.find(g => g.game === activeGameId) ? true : false;
 }
 
-export async function runxEdit(pluginName : string, api : types.IExtensionApi, params : string[]) {
+export async function runxEdit(pluginName : string | undefined, api : types.IExtensionApi, params : string[]) {
+  if (!pluginName) return;
   const state = api.getState();
   const activeGameId = selectors.activeGameId(state);
 
@@ -161,15 +165,16 @@ export async function runxEdit(pluginName : string, api : types.IExtensionApi, p
     const doNotCleanMessage = lootMessages.find(m => doNotCleanMessages.includes(m.value));
     const missingMaster = pluginData.warnings['missing-master'];
     //We can't clean plugins with a LOOT message.
-    if (doNotCleanMessage) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`, displayMS: 5000});
+    if (doNotCleanMessage) return api.sendNotification?.({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name}, please check the LOOT messages.`, displayMS: 5000});
     //We can't clean plugins with missing masters. 
-    if (missingMaster) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
+    if (missingMaster) return api.sendNotification?.({type: 'warning', title: `Cannot clean this plugin`, message:`Vortex could not clean ${pluginData.name} as it has missing masters.`, displayMS: 5000});
   }
   
   //We can't clean the game ESMs.
-  if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1 && params.includes('-quickautoclean')) return api.sendNotification({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
+  if (excludedPlugins.indexOf(pluginName.toLowerCase()) !== -1 && params.includes('-quickautoclean')) return api.sendNotification?.({type: 'warning', title: `Cannot clean this plugin`, message: `Vortex could not clean ${pluginData.name} as it is the game master file.`, displayMS: 5000});
 
   const xEditData = gameSupportData.find(g => g.game === activeGameId);
+  if (!xEditData) return;
   //Replace game and plugin params in the arguements array.
   params.indexOf('{gamePara}') !== -1 && xEditData.gameParam ? params[params.indexOf('{gamePara}')] = xEditData.gameParam : null;
   params.indexOf('{pluginName}') !== -1 && pluginName !== '' ? params[params.indexOf('{pluginName}')] = pluginName : null;
@@ -177,25 +182,25 @@ export async function runxEdit(pluginName : string, api : types.IExtensionApi, p
 
   const gamePath = util.getSafe(state, ['settings', 'gameMode', 'discovered', activeGameId, 'path'], undefined);
    
-  const tools = util.getSafe(state, ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], undefined);
+  const tools = util.getSafe<types.ITool[]>(state, ['settings', 'gameMode', 'discovered', activeGameId, 'tools'], []);
   const xEditKey = tools ? Object.keys(tools).find(t => t === xEditData.exeName) : undefined;
   const xEditTool : types.IDiscoveredTool = xEditKey ? tools[xEditKey] : undefined;
 
-  if (!xEditTool || !xEditTool.path) return api.showErrorNotification(`xEdit not found`,`Vortex could not find ${xEditData.exeName}. Please check the tool in your starter dashlet is pointing to the right place.`);
+  if (!xEditTool || !xEditTool.path) return api.showErrorNotification?.(`xEdit not found`,`Vortex could not find ${xEditData.exeName}. Please check the tool in your starter dashlet is pointing to the right place.`);
 
   try {
     await api.runExecutable(xEditTool.path, params,{
       cwd: gamePath,
       suggestDeploy: false,
       shell: false,
-      onSpawned: () => api.store.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
+      onSpawned: () => api.store?.dispatch(actions.setToolRunning(xEditTool.path, Date.now(), true))
     });
     if (params.includes('-quickautoclean')) setCleaning(true, pluginData?.name ?? pluginName);
 
   }
-  catch(err) {
-    if (err.code === 'ENOENT') {
-      api.showErrorNotification(`xEdit not found`,`Failed to run tool. Vortex could not find xEdit at ${xEditTool.path}. Please check the tool in your starter dashlet is pointing to the right place.`);
+  catch(err: unknown) {
+    if ((err as { code: string }).code === 'ENOENT') {
+      api.showErrorNotification?.(`xEdit not found`,`Failed to run tool. Vortex could not find xEdit at ${xEditTool.path}. Please check the tool in your starter dashlet is pointing to the right place.`);
     } else log('error', 'Error starting xEdit',err);
   }
 }
