@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "lib": ["ESNext"],
+    "module": "esnext",
     "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
     "rootDir": "./src",
     "outDir": "./out",
     "jsx": "react",
-    "sourceMap": false
+    "sourceMap": false,
+    "types": ["node"]
   },
     "exclude": [
       "node_modules"
