@@ -11,9 +11,6 @@ importers:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
-      i18next:
-        specifier: ^17.0.4
-        version: 17.3.1
       rolldown:
         specifier: 1.0.0-rc.18
         version: 1.0.0-rc.18
@@ -25,10 +22,6 @@ importers:
         version: https://codeload.github.com/Nexus-Mods/vortex-api/tar.gz/012ea3b813110d1465e9324afe8407e23d5745db
 
 packages:
-
-  '@babel/runtime@7.29.2':
-    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
-    engines: {node: '>=6.9.0'}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -152,9 +145,6 @@ packages:
   '@types/node@25.6.0':
     resolution: {integrity: sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ==}
 
-  i18next@17.3.1:
-    resolution: {integrity: sha512-4nY+yaENaoZKmpbiDXPzucVHCN3hN9Z9Zk7LyQXVOKVIpnYOJ3L/yxHJlBPtJDq3PGgjFwA0QBFm/26Z0iDT5A==}
-
   rolldown@1.0.0-rc.18:
     resolution: {integrity: sha512-phmyKBpuBdRYDf4hgyynGAYn/rDDe+iZXKVJ7WX5b1zQzpLkP5oJRPGsfJuHdzPMlyyEO/4sPW6yfSx2gf7lVg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -177,8 +167,6 @@ packages:
     hasBin: true
 
 snapshots:
-
-  '@babel/runtime@7.29.2': {}
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -264,10 +252,6 @@ snapshots:
   '@types/node@25.6.0':
     dependencies:
       undici-types: 7.19.2
-
-  i18next@17.3.1:
-    dependencies:
-      '@babel/runtime': 7.29.2
 
   rolldown@1.0.0-rc.18:
     dependencies:
