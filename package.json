@@ -5,7 +5,7 @@
   "main": "./out/index.js",
   "repository": "",
   "scripts": {
-    "build": "pnpm exec rolldown --config rolldown.config.mjs && pnpm extractinfo && cpy \"src/xediticon.svg\" dist --flat",
+    "build": "pnpm exec rolldown --config rolldown.config.mjs && pnpm extractInfo && cpy \"src/xediticon.svg\" dist --flat",
     "copyassets": ""
   },
   "author": "Pickysaurus",
