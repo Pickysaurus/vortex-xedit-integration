@@ -18,7 +18,7 @@ export const xEditPersistentReducer: types.IReducerSpec = {
     reducers: {
         [persistent.SET_EDIT_TOOL_BY_GAME as any]: (state, payload) => {
             const { gameId, toolId } = payload;
-            if (toolId) return { ...state, [gameId]: undefined };
+            if (!toolId) return { ...state, [gameId]: undefined };
             else return { ...state, [gameId]: toolId };
         }
     },
