@@ -1,60 +1,62 @@
-export const gameSupportData = [
-  {
-    game: "skyrimse",
+const gameSupportDataBase: Record<string, { exeName: string, gameParam: string }> = {
+   "skyrimse": {
     exeName: "SSEEdit",
     gameParam: "-sse"
   },
-  {
-    game: "skyrim",
+  "skyrim": {
     exeName: "TES5Edit",
     gameParam: "-tes5"
   },
-  {
-    game: "skyrimvr",
+  "skyrimvr": {
     exeName: "TES5VREdit",
     gameParam: "-tes5vr"
   },
-  {
-    game: "fallout4",
+  "fallout4": {
     exeName: "FO4Edit",
     gameParam: "-fo4"
   },
-  {
-    game: "oblivion",
+  "oblivion": {
     exeName: "TES4Edit",
     gameParam: "-tes4"
   },
-  {
-    game: "enderal",
+  "enderal": {
     exeName: "EnderalEdit",
     gameParam: "-enderal"
   },
-  {
-    game: "fallout3",
+  "fallout3": {
     exeName: "FO3Edit",
     gameParam: "-fo3"
   },
-  {
-    game: "falloutnv",
+  "falloutnv": {
     exeName: "FNVEdit",
     gameParam: "-fnv"
   },
-  {
-    game: "fallout4vr",
+  "fallout4vr": {
     exeName: "FO4VREdit",
     gameParam: "-fo4vr"
   },
-  {
-    game: "fallout76",
+  "fallout76": {
     exeName: "FO76Edit",
     gameParam: "-fo76"
   },
-  {
-    game: "morrowind",
+  "morrowind": {
     exeName: "TES3Edit",
     gameParam: "-tes3"
   },
-];
+  "starfield": {
+    exeName: "SF1Edit",
+    gameParam: "-sf1"
+  }
+}
+
+export const gameSupportData = {
+  ...gameSupportDataBase,
+  skyrimspecialedition: gameSupportDataBase.skyrimse,
+  newvegas: gameSupportDataBase.falloutnv,
+}
+
+
+export const xEditNames: string[] = ['xedit.exe', ...Object.values(gameSupportData).map(g => `${g.exeName.toLowerCase()}.exe`)];
 
 //export a list of plugins we don't want to clean, ever.
 export const excludedPlugins = ["skyrim.esm", "fallout4.esm", "falloutnv.esm", "fallout3.esm"," oblivion.esm", "seventysix.esm", "enderal - forgotten stories.esm"];
