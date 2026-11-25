@@ -94,12 +94,14 @@ jobs:
           name: xEdit-Integration
 
       - name: Upload to Nexus Mods
-        uses: Nexus-Mods/upload-action@main
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
-          file_group_id: ${{ vars.NEXUSMODS_FILE_GROUP }}
+          file_id: ${{ vars.NEXUSMODS_FILE_GROUP }}
           display_name: xEdit Cleaning Extension
           filename: ${{ needs.build.outputs.zip_name }}
           version: ${{ github.event.inputs.version || needs.build.outputs.version }}
+          update_mod_version: true
+          primary_mod_manager_download: true
 
           
